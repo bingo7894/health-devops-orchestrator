@@ -51,3 +51,13 @@ services:
       timeout: 5s
       retries: 5
 
+  discovery-server:
+    build:
+      context: ../health-discovery-server
+      dockerfile: Dockerfile
+    container_name: health-discovery-server
+    restart: unless-stopped
+    ports:
+      - "8761:8761"
+    networks:
+      - health-net
