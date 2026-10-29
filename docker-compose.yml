@@ -106,3 +106,23 @@ services:
       - discovery-server
     networks:
       - health-net
+
+  # ==========================================
+  # 6. AI Vision & Gemini Service (Port 8083)
+  # ==========================================
+  ai-service:
+    build:
+      context: ../health-ai-service
+      dockerfile: Dockerfile
+    container_name: health-ai-service
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.8-flash}
+      EUREKA_SERVER_URL: http://discovery-server:8761/eureka/
+    depends_on:
+      - discovery-server
+    networks:
+      - health-net
