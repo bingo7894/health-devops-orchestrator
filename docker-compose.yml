@@ -1,0 +1,53 @@
+version: '3.8'
+
+networks:
+  health-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+
+services:
+  # ==========================================
+  # 1. PostgreSQL 16 (Logical Multi-Databases)
+  # ==========================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: health-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init-multi-db.sql:/docker-entrypoint-initdb.d/init-multi-db.sql
+    networks:
+      - health-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================
+  # 2. Redis 7 (Cache & Rate Limiting)
+  # ==========================================
+  redis:
+    image: redis:7-alpine
+    container_name: health-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - health-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
