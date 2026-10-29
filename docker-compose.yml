@@ -51,6 +51,9 @@ services:
       timeout: 5s
       retries: 5
 
+  # ==========================================
+  # 3. Netflix Eureka Discovery Server (Port 8761)
+  # ==========================================
   discovery-server:
     build:
       context: ../health-discovery-server
@@ -80,4 +83,26 @@ services:
     networks:
       - health-net
 
-
+  # ==========================================
+  # 5. Nutrition & Food Service (Port 8082)
+  # ==========================================
+  nutrition-service:
+    build:
+      context: ../health-nutrition-service
+      dockerfile: Dockerfile
+    container_name: health-nutrition-service
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      EUREKA_SERVER_URL: http://discovery-server:8761/eureka/
+    depends_on:
+      - postgres
+      - redis
+      - discovery-server
+    networks:
+      - health-net
