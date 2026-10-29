@@ -61,3 +61,39 @@ services:
       - "8761:8761"
     networks:
       - health-net
+
+  # ==========================================
+  # 4. Spring Cloud API Gateway (Port 8080)
+  # ==========================================
+  api-gateway:
+    build:
+      context: ../health-api-gateway
+      dockerfile: Dockerfile
+    container_name: health-api-gateway
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      EUREKA_SERVER_URL: http://discovery-server:8761/eureka/
+    depends_on:
+      - discovery-server
+    networks:
+      - health-net
+
+  # ==========================================
+  # 4. Spring Cloud API Gateway (Port 8080)
+  # ==========================================
+  api-gateway:
+    build:
+      context: ../health-api-gateway
+      dockerfile: Dockerfile
+    container_name: health-api-gateway
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      EUREKA_SERVER_URL: http://discovery-server:8761/eureka/
+    depends_on:
+      - discovery-server
+    networks:
+      - health-net
